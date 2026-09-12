@@ -1,0 +1,23 @@
+`default_nettype none
+`timescale 1ns/1ps
+module tb;
+  reg b0,b1,b2;                       // три условия (1=+1/ок, 0=-1/нет)
+  wire [5:0] x_flat = {(b2?2'b10:2'b00),(b1?2'b10:2'b00),(b0?2'b10:2'b00)};
+  wire signed [15:0] sum;
+  tritdot #(.N(3)) vote(.w_flat(6'b101010), .x_flat(x_flat), .sum(sum));
+  integer i, ok; reg go, abrt, exp_go;
+  initial begin
+    ok=0;
+    $display("b2 b1 b0 | sum | GO ABORT | ожидание(большинство ок)");
+    for (i=0;i<8;i=i+1) begin
+      {b2,b1,b0} = i[2:0]; #1;
+      go=(sum>0); abrt=(sum<0);
+      exp_go = ((b0+b1+b2) >= 2);     // GO если ≥2 условий ок
+      $display(" %0d  %0d  %0d | %3d |  %0d    %0d   | GO=%0d  %s",
+               b2,b1,b0, sum, go, abrt, exp_go, (go==exp_go && go!=abrt)?"OK":"FAIL");
+      if (go==exp_go && go!=abrt) ok=ok+1;
+    end
+    $display(ok==8 ? "\nВСЕ 8 КОМБИНАЦИЙ ВЕРНЫ: троичный рефлекс = голосование большинством ✓" : "\nЕСТЬ ОШИБКИ");
+    $finish;
+  end
+endmodule

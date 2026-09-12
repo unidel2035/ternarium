@@ -1,0 +1,7 @@
+build/
+__pycache__/
+*.fs
+*.vvp
+*.vcd
+.playwright-mcp/
+*.pt.tmp

@@ -1,0 +1,17 @@
+// trit.cst — Tang Mega 138K Pro
+// Троичный элемент: −1 (Отец), 0 (Дух), +1 (Сын)
+IO_LOC "clk"      P16;
+IO_LOC "led_neg"  N23;   // -1 = Отец  (LED5)
+IO_LOC "led_zero" N21;   // 0  = Дух   (LED4)
+IO_LOC "led_pos"  M25;   // +1 = Сын   (LED3)
+IO_LOC "leds[3]"  L20;
+IO_LOC "leds[4]"  R26;
+IO_LOC "leds[5]"  J14;
+
+IO_PORT "clk"      IO_TYPE=LVCMOS33 PULL_MODE=NONE BANK_VCCIO=3.3;
+IO_PORT "led_neg"  IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_PORT "led_zero" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_PORT "led_pos"  IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_PORT "leds[3]"  IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_PORT "leds[4]"  IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_PORT "leds[5]"  IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;

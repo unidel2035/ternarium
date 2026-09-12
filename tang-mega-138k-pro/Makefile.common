@@ -1,0 +1,74 @@
+# Makefile.common — общие правила для всех подпроектов
+# Tang Mega 138K Pro (GW5AST-LV138FPG676AC1)
+# Тулчейн: yosys + nextpnr-himbaechel + apycula (через OSS CAD Suite)
+#
+# Использование в подпроектном Makefile:
+#   TOP   = blink
+#   FILES = blink.v
+#   CST   = blink.cst
+#   include ../Makefile.common
+
+# ---- Параметры платы ----
+DEVICE         = GW5AST-LV138FPG676AC1/I0
+FAMILY         = GW5AST-138C
+APYCULA_DEVICE = GW5AST-138C
+BOARD          = tangmega138k
+
+OUT ?= build
+
+# ---- Тулчейн ----
+# Берём из OSS CAD Suite (~/oss-cad-suite). Если не активирован environment,
+# подцепляем PATH вручную.
+OSSCAD ?= $(HOME)/oss-cad-suite
+PATH   := $(OSSCAD)/bin:$(OSSCAD)/lib:$(OSSCAD)/py3bin:$(PATH)
+export PATH
+
+YOSYS              ?= yosys
+NEXTPNR_HIMBAECHEL ?= nextpnr-himbaechel
+GOWIN_PACK         ?= gowin_pack
+OPENFPGA           ?= openFPGALoader
+
+# ---- Цели ----
+.PHONY: all synth pnr bitstream flash sim clean help
+
+all: bitstream
+
+$(OUT):
+	@mkdir -p $(OUT)
+
+synth: $(OUT)
+	$(YOSYS) -p "read_verilog $(FILES); synth_gowin -top $(TOP) -nodsp -json $(OUT)/$(TOP).json" 2>&1 | tee $(OUT)/synth.log
+	@echo "✓ Синтез → $(OUT)/$(TOP).json"
+
+pnr: synth
+	$(NEXTPNR_HIMBAECHEL) \
+		--json $(OUT)/$(TOP).json \
+		--write $(OUT)/$(TOP)_pnr.json \
+		--device $(DEVICE) \
+		--vopt family=$(FAMILY) \
+		--vopt cst=$(CST) \
+		2>&1 | tee $(OUT)/pnr.log
+	@echo "✓ Place & Route → $(OUT)/$(TOP)_pnr.json"
+
+bitstream: pnr
+	$(GOWIN_PACK) -d $(APYCULA_DEVICE) -o $(OUT)/$(TOP).fs $(OUT)/$(TOP)_pnr.json 2>&1 | tee $(OUT)/pack.log
+	@echo "✓ Bitstream → $(OUT)/$(TOP).fs"
+	@ls -lh $(OUT)/$(TOP).fs
+
+flash: bitstream
+	$(OPENFPGA) --board $(BOARD) $(OUT)/$(TOP).fs
+	@echo "✓ Прошито на Tang Mega 138K Pro"
+
+# Прошивка во флэш (не SRAM) — bitstream сохраняется при выключении питания
+flash-permanent: bitstream
+	$(OPENFPGA) --board $(BOARD) -f $(OUT)/$(TOP).fs
+	@echo "✓ Прошито в SPI flash (постоянно)"
+
+clean:
+	rm -rf $(OUT)
+
+help:
+	@echo "make            — синтез + bitstream (default)"
+	@echo "make flash      — прошить SRAM (теряется при питании)"
+	@echo "make flash-permanent — прошить SPI flash"
+	@echo "make clean      — удалить $(OUT)/"

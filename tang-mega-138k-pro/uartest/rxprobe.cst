@@ -1,0 +1,27 @@
+IO_LOC "clk"     P16;
+
+// Кандидаты UART RX пинов
+IO_LOC "rx_n16"  N16;     // FPGA_RXD из schematic (наш текущий guess)
+IO_LOC "rx_m16"  M16;     // соседний пин
+IO_LOC "rx_r15"  R15;     // мой первоначальный TODO guess
+IO_LOC "rx_n26"  N26;     // ещё один соседний
+
+// LEDs (active LOW)
+IO_LOC "leds[5]" N23;     // защёлка N16
+IO_LOC "leds[4]" N21;     // защёлка M16
+IO_LOC "leds[3]" M25;     // защёлка R15
+IO_LOC "leds[2]" L20;     // защёлка N26
+IO_LOC "leds[1]" R26;     // heartbeat ~1 Гц (плата жива)
+IO_LOC "leds[0]" J14;     // canary — горит всегда
+
+IO_PORT "clk"     IO_TYPE=LVCMOS33 PULL_MODE=NONE BANK_VCCIO=3.3;
+IO_PORT "rx_n16"  IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;
+IO_PORT "rx_m16"  IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;
+IO_PORT "rx_r15"  IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;
+IO_PORT "rx_n26"  IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;
+IO_PORT "leds[5]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_PORT "leds[4]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_PORT "leds[3]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_PORT "leds[2]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_PORT "leds[1]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_PORT "leds[0]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;

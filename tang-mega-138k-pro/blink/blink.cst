@@ -1,0 +1,13 @@
+// Tang Mega 138K Pro — constraint file
+// Чип: GW5AST-LV138FPG676AC1/I0
+// Источник: Sipeed TangMega-138KPro-example/led/
+
+IO_LOC "clk"  P16;     // 50 МГц системный тактовый
+IO_LOC "led0" J14;     // LED0 (active LOW)
+IO_LOC "led1" R26;     // LED1
+IO_LOC "led2" L20;     // LED2
+
+IO_PORT "clk"  IO_TYPE=LVCMOS33 PULL_MODE=NONE BANK_VCCIO=3.3;
+IO_PORT "led0" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_PORT "led1" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_PORT "led2" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;

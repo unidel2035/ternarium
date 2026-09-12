@@ -1,0 +1,9 @@
+# артефакты сборки/симуляции — не коммитим
+sim
+sim_neuron
+*.fs
+*.json
+*_pnr.json
+build/
+*.vcd
+__pycache__/
