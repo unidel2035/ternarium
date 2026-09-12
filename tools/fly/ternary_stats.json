@@ -1,0 +1,12 @@
+{
+  "neurons": 139255,
+  "connections_raw": 16847997,
+  "min_syn": 2,
+  "pairs_nonzero": 5919790,
+  "pos_trits": 4555434,
+  "neg_trits": 1364356,
+  "density_pct": 0.0305,
+  "bytes_csr_int8": 30155974,
+  "bytes_2bit_packed_est": 1479947,
+  "source": "FAFB v783, Zenodo 10676866 (Dorkenwald et al. 2024) + flywire_annotations (Schlegel et al. 2024)"
+}
