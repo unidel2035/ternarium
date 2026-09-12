@@ -1,0 +1,11 @@
+{
+  "K": 4096,
+  "nnz": 211606,
+  "AW": 12,
+  "entry_words": 105803,
+  "xwords": 256,
+  "img_bytes": 423212,
+  "enc": "entry16=(col<<2)|wcode, wcode 01=+1 10=-1; two entries per 32-bit word",
+  "x_enc": "2b per neuron, same wcode, 16 per 32-bit word",
+  "source": "FAFB v783 ternary.npz (\u0441\u043c. build_ternary_matrix.py)"
+}
