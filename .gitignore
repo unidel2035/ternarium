@@ -5,3 +5,4 @@ __pycache__/
 *.vcd
 .playwright-mcp/
 *.pt.tmp
+build_brain/
