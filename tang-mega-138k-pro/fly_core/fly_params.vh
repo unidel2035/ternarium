@@ -1,5 +1,5 @@
 // автогенерация: export_slice.py
-localparam integer ROWS        = 4096;
-localparam integer COL_AW      = 12;
-localparam integer ENTRY_WORDS = 105803;
-localparam integer XWORDS      = 256;
+localparam integer ROWS        = 1024;
+localparam integer COL_AW      = 11;
+localparam integer ENTRY_WORDS = 15869;
+localparam integer XWORDS      = 64;

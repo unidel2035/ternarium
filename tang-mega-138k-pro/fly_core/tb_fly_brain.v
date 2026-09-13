@@ -61,10 +61,10 @@ module tb_fly_brain;
         rst_n = 1;
         repeat (20) @(posedge clk);
 
-        // стимулы: топ out-degree (см. brain_sim.py)
-        send_byte("S"); send_byte("F"); send_byte("7"); send_byte("F"); send_byte("+");
-        send_byte("S"); send_byte("F"); send_byte("1"); send_byte("2"); send_byte("+");
-        send_byte("S"); send_byte("A"); send_byte("F"); send_byte("4"); send_byte("-");
+        // стимулы: топ out-degree среза K=1024 (см. brain_sim.py)
+        send_byte("S"); send_byte("1"); send_byte("6"); send_byte("0"); send_byte("+");
+        send_byte("S"); send_byte("1"); send_byte("5"); send_byte("E"); send_byte("+");
+        send_byte("S"); send_byte("0"); send_byte("9"); send_byte("6"); send_byte("-");
 `ifdef BRAIN_DUMP
         send_byte("D");                                    // дамп вместо прогона
         #20_000_000;

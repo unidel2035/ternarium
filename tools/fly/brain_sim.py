@@ -31,7 +31,7 @@ theta = 1
 
 M = sp.load_npz(f"{data_dir}/ternary.npz").tocsr().astype(np.int32)
 # тот же срез, что и в export_slice.py (топ-K по степени, сортированный)
-K = 4096
+K = int(sys.argv[2]) if len(sys.argv) > 2 else 1024
 deg = np.asarray((M != 0).sum(axis=1)).ravel() + np.asarray((M != 0).sum(axis=0)).ravel()
 sel = np.sort(np.argsort(-deg)[:K])
 S = M[sel][:, sel].tocsr()
