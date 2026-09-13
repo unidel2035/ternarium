@@ -1,15 +1,22 @@
-# fly_core — троичный матvec среза коннектома мухи
-# hex-артефакты генерирует tools/fly/export_slice.py -> sim/
+TOP   = fly_splash
+FILES = fly_splash.v
+CST   = fly_splash.cst
 
-SIMDIR = sim
+include ../Makefile.common
 
-sim:
-	cd $(SIMDIR) && iverilog -g2005 -I . -o fly_sim.vvp ../fly_matvec.v ../tb_fly_matvec.v && vvp fly_sim.vvp
+# ── fly_brain: живой мозг (битстрим) ────────────────────────────────────
+brain:
+	$(MAKE) TOP=fly_brain FILES=fly_brain.v CST=fly_brain.cst OUT=build_brain bitstream
 
-lint:
-	iverilog -g2005 -I $(SIMDIR) -t null fly_matvec.v
+flash-brain: brain
+	$(OPENFPGA) --board $(BOARD) -f build_brain/fly_brain.fs
 
-clean:
-	rm -f $(SIMDIR)/fly_sim.vvp
+# ── fly_brain: живой мозг (симуляция) ───────────────────────────────────
+sim-brain:
+	cd $(SIMDIR) && iverilog -g2005 -DFLY_SIM -I .. -o fly_brain.vvp ../fly_brain.v ../tb_fly_brain.v && vvp fly_brain.vvp
+	@diff $(SIMDIR)/captured.txt $(SIMDIR)/expected_uart.txt > /dev/null && echo "PASS: UART-отчёты совпали с golden" || (echo "FAIL: см. diff:"; diff $(SIMDIR)/captured.txt $(SIMDIR)/expected_uart.txt | head; exit 1)
 
-.PHONY: sim lint clean
+expected:
+	cd $(SIMDIR) && ~/fly-connectome/.venv/bin/python /mnt/c/Users/unide/ternarium/tools/fly/brain_sim.py /mnt/c/Users/unide/fly-connectome/data --out expected_uart.txt
+
+.PHONY: sim-brain expected

@@ -1,0 +1,19 @@
+// fly_brain.cst — Tang Mega 138K Pro: мозг мухи + UART
+// UART пины из schematic Tang Mega 138K Pro (FT2232: A=JTAG, B=UART)
+
+IO_LOC "clk"     P16;
+IO_LOC "rst_n"   G16;
+IO_LOC "rx"      N16;     // FPGA_RXD (FT2232 channel B)
+IO_LOC "uart_tx" P15;     // FPGA_TXD (FT2232 channel B)
+
+IO_PORT "clk"     IO_TYPE=LVCMOS33 PULL_MODE=NONE BANK_VCCIO=3.3;
+IO_PORT "rst_n"   IO_TYPE=LVCMOS33 PULL_MODE=UP   BANK_VCCIO=3.3;
+IO_PORT "rx"      IO_TYPE=LVCMOS33 PULL_MODE=UP   BANK_VCCIO=3.3;
+IO_PORT "uart_tx" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+
+IO_LOC "state_led[0]" J14;
+IO_LOC "state_led[1]" R26;
+IO_LOC "state_led[2]" L20;
+IO_PORT "state_led[0]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_PORT "state_led[1]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_PORT "state_led[2]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;

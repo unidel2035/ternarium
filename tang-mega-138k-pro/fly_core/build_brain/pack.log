@@ -1,0 +1,12 @@
+/home/unidel/oss-cad-suite/lib/python3.11/site-packages/apycula/bitmatrix.py:60: UserWarning: Numpy is not available, performance will be degraded.
+  warnings.warn("Numpy is not available, performance will be degraded.")
+/home/unidel/oss-cad-suite/lib/python3.11/site-packages/apycula/chipdb.py:241: UserWarning: Msgspec is not available, performance will be degraded.
+  warnings.warn("Msgspec is not available, performance will be degraded.")
+Traceback (most recent call last):
+  File "/home/unidel/oss-cad-suite/libexec/gowin_pack", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/unidel/oss-cad-suite/lib/python3.11/site-packages/apycula/gowin_pack.py", line 4613, in main
+    with open(args.netlist) as f:
+         ^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'build_brain/fly_brain_pnr.json'
