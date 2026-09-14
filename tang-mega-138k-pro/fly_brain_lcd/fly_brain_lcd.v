@@ -388,28 +388,6 @@ module fly_brain_lcd (
     wire [15:0] py = v_cnt - 16'd8;        // 0..479
     assign lcd_en = visible;
 
-    // ── шрифт: байт строки глифа ──
-    function [7:0] glyph_row;
-        input [7:0] code;
-        input [3:0] row;
-        glyph_row = fontrom[{code, row}];
-    endfunction
-
-    // ── текстовая строка-заголовок (14 символов, scale 2) ──
-    function [7:0] title_char;
-        input [3:0] i;
-        case (i)
-            4'd0: title_char = "F";  4'd1: title_char = "L";
-            4'd2: title_char = "Y";  4'd3: title_char = " ";
-            4'd4: title_char = "B";  4'd5: title_char = "R";
-            4'd6: title_char = "A";  4'd7: title_char = "I";
-            4'd8: title_char = "N";  4'd9: title_char = " ";
-            4'd10: title_char = "L"; 4'd11: title_char = "I";
-            4'd12: title_char = "V"; 4'd13: title_char = "E";
-            default: title_char = " ";
-        endcase
-    endfunction
-
     // ── лента: цвет состояния нейрона (3 px колонки) ──
     wire [11:0] tape_idx  = px[11:2] - 8;              // (px-32)/4
     wire        in_tape   = (px >= 32) && (px < 32 + 1024) && (py >= 130) && (py < 250);
@@ -419,9 +397,6 @@ module fly_brain_lcd (
     wire in_pbar = (py >= 270) && (py < 300) && (px >= 32) && (px < 32 + pcount[11:0] * 3);
     wire in_nbar = (py >= 310) && (py < 340) && (px >= 32) && (px < 32 + ncount[11:0] * 3);
 
-    // ── номер шага (2 hex-символа, scale 2) у x=40, y=380 ──
-    wire in_step0 = (px >= 40) && (px < 56) && (py >= 380) && (py < 412);
-    wire in_step1 = (px >= 56) && (px < 72) && (py >= 380) && (py < 412);
 
     reg [5:0] r6, g6, b6;
     always @(*) begin

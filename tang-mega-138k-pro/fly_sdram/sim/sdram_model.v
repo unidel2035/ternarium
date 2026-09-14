@@ -49,7 +49,7 @@ module sdram_model (
 
         if (is_rd && row_open) begin
             rd_pend   <= 1;
-            rd_wait   <= 2;                       // CL=2
+            rd_wait   <= 1;                       // CL=2: данные на следующем такте
             rd_addr_q <= flat;
         end
         if (rd_pend && rd_wait == 1) begin
