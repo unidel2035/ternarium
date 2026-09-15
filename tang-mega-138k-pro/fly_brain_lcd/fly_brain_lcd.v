@@ -81,6 +81,14 @@ module fly_brain_lcd (
     reg [25:0] hb = 0;
     reg [26:0] idle_cnt = 0;
     reg [15:0] stim_idx = 0;
+
+    // ── readout: тернарный классификатор 4×256 (обучен на ПК) ──────────
+    reg [31:0] ro_rom [0:63];              // 4 класса × 16 слов × 16 весов
+    initial    $readmemh("class_ro.hex", ro_rom);
+    reg [31:0] ro_w0 = 0, ro_w1 = 0, ro_w2 = 0, ro_w3 = 0;
+    reg [15:0] acc_ro0 = 0, acc_ro1 = 0, acc_ro2 = 0, acc_ro3 = 0;
+    reg [1:0]  cls_reg = 0;
+    reg [15:0] ro_r = 0;
     reg [25:0] pace_cnt = 0;               // темп шагов демо
     reg        pace_fire = 0;
 
@@ -305,11 +313,37 @@ module fly_brain_lcd (
                     end
                     if (r == ROWS) begin
                         r   <= 0;
-                        mst <= 4'd9;
+                        acc_ro0 <= 0; acc_ro1 <= 0; acc_ro2 <= 0; acc_ro3 <= 0;
+                        mst <= 4'd11;                           // → readout pass
                     end else begin
                         r   <= r + 1;
                         mst <= 4'd7;
                     end
+                end
+
+                4'd11: begin                                        // M_RO0: чтение весов и x
+                    ro_w0 <= ro_rom[{2'b00, r[7:0]}];
+                    ro_w1 <= ro_rom[{2'b01, r[7:0]}];
+                    ro_w2 <= ro_rom[{2'b10, r[7:0]}];
+                    ro_w3 <= ro_rom[{2'b11, r[7:0]}];
+                    xva   <= xa[r];
+                    mst   <= 4'd12;
+                end
+
+                4'd12: begin                                        // M_RO1: аккумуляция
+                    acc_ro0 <= acc_ro0 + term(2'b01, (ro_w0 >> {r[3:0], 1'b0}) & 2'b11);
+                    acc_ro1 <= acc_ro1 + term(2'b01, (ro_w1 >> {r[3:0], 1'b0}) & 2'b11);
+                    acc_ro2 <= acc_ro2 + term(2'b01, (ro_w2 >> {r[3:0], 1'b0}) & 2'b11);
+                    acc_ro3 <= acc_ro3 + term(2'b01, (ro_w3 >> {r[3:0], 1'b0}) & 2'b11);
+                    r   <= r + 1;
+                    mst <= (r + 1 == ROWS) ? 4'd13 : 4'd11;
+                end
+
+                4'd13: begin                                        // argmax → cls_reg
+                    cls_reg <= (acc_ro0 >= acc_ro1 && acc_ro0 >= acc_ro2 && acc_ro0 >= acc_ro3) ? 2'd0 :
+                               (acc_ro1 >= acc_ro2 && acc_ro1 >= acc_ro3) ? 2'd1 :
+                               (acc_ro2 >= acc_ro3) ? 2'd2 : 2'd3;
+                    mst <= 4'd9;
                 end
 
                 4'd9: begin                                         // M_REP + продвижение
@@ -393,6 +427,15 @@ module fly_brain_lcd (
     wire        in_tape   = (px >= 32) && (px < 32 + 1024) && (py >= 130) && (py < 250);
     wire [11:0] tape_neur = tape_idx[11:2] * 4 + px[1:0];
 
+    // ── класс-квадранты: активный класс подсвечен ──
+    wire in_c0 = (py >= 380) && (py < 444) && (px >=  40) && (px < 100);
+    wire in_c1 = (py >= 380) && (py < 444) && (px >= 100) && (px < 160);
+    wire in_c2 = (py >= 380) && (py < 444) && (px >= 160) && (px < 220);
+    wire in_c3 = (py >= 380) && (py < 444) && (px >= 220) && (px < 280);
+    wire in_cl = in_c0 | in_c1 | in_c2 | in_c3;
+    wire [1:0] cls_q = in_c0 ? 2'd0 : in_c1 ? 2'd1 : in_c2 ? 2'd2 : 2'd3;
+    wire       cls_hit = (cls_q == cls_reg);
+
     // ── бары P/N ──
     wire in_pbar = (py >= 270) && (py < 300) && (px >= 32) && (px < 32 + pcount[11:0] * 3);
     wire in_nbar = (py >= 310) && (py < 340) && (px >= 32) && (px < 32 + ncount[11:0] * 3);
@@ -401,6 +444,14 @@ module fly_brain_lcd (
     reg [5:0] r6, g6, b6;
     always @(*) begin
         if (!visible)                 {r6, g6, b6} = 18'h00300C;
+        else if (in_cl) begin
+            case (cls_q)
+                2'd0: {r6, g6, b6} = cls_hit ? 18'h003F18 : 18'h001018;
+                2'd1: {r6, g6, b6} = cls_hit ? 18'h3F0808 : 18'h100808;
+                2'd2: {r6, g6, b6} = cls_hit ? 18'h08383F : 18'h081018;
+                default: {r6, g6, b6} = cls_hit ? 18'h3F3A08 : 18'h101008;
+            endcase
+        end
         else if (in_tape) begin
             case (xa[tape_neur])
                 2'b01: {r6, g6, b6} = 18'h003F18;  // +1 зелёный
