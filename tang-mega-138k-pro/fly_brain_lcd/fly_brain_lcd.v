@@ -464,9 +464,9 @@ module fly_brain_lcd (
         else                          {r6, g6, b6} = 18'h000814;
     end
 
-    assign lcd_r = r6;
+    assign lcd_r = b6;   // BGR-панель: каналы переставлены
     assign lcd_g = g6;
-    assign lcd_b = b6;
+    assign lcd_b = r6;
 
 endmodule
 
