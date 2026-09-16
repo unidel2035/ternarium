@@ -440,33 +440,41 @@ module fly_brain_lcd (
     wire in_pbar = (py >= 270) && (py < 300) && (px >= 32) && (px < 32 + pcount[11:0] * 3);
     wire in_nbar = (py >= 310) && (py < 340) && (px >= 32) && (px < 32 + ncount[11:0] * 3);
 
+    // ── белый sweep-столб: +1 px за кадр (~17 c на проход) — видимое движение ──
+    reg [9:0] sweep_x = 0;
+    always @(posedge clk25) begin
+        if (h_cnt == 16'd1191 && v_cnt == 16'd532)
+            sweep_x <= (sweep_x == 10'd799) ? 10'd0 : sweep_x + 10'd1;
+    end
+    wire in_sweep = visible && (px[9:0] == sweep_x) && (py >= 16'd96) && (py < 16'd360);
 
     reg [5:0] r6, g6, b6;
     always @(*) begin
-        if (!visible)                 {r6, g6, b6} = 18'h00300C;
+        if (!visible)                 {r6, g6, b6} = 18'h00040A;
+        else if (in_sweep)            {r6, g6, b6} = 18'h3F3F3F;
         else if (in_cl) begin
             case (cls_q)
-                2'd0: {r6, g6, b6} = cls_hit ? 18'h003F18 : 18'h001018;
-                2'd1: {r6, g6, b6} = cls_hit ? 18'h3F0808 : 18'h100808;
-                2'd2: {r6, g6, b6} = cls_hit ? 18'h08383F : 18'h081018;
-                default: {r6, g6, b6} = cls_hit ? 18'h3F3A08 : 18'h101008;
+                2'd0: {r6, g6, b6} = cls_hit ? 18'h003F18 : 18'h000808;
+                2'd1: {r6, g6, b6} = cls_hit ? 18'h3F0808 : 18'h080000;
+                2'd2: {r6, g6, b6} = cls_hit ? 18'h083F3F : 18'h000808;
+                default: {r6, g6, b6} = cls_hit ? 18'h3F3F08 : 18'h080800;
             endcase
         end
         else if (in_tape) begin
             case (xa[tape_neur])
-                2'b01: {r6, g6, b6} = 18'h003F18;  // +1 зелёный
-                2'b10: {r6, g6, b6} = 18'h3F0808;  // −1 красный
-                default: {r6, g6, b6} = 18'h000830; // покой — тёмно-синий
+                2'b01: {r6, g6, b6} = 18'h003F00;  // +1 зелёный
+                2'b10: {r6, g6, b6} = 18'h3F0000;  // −1 красный
+                default: {r6, g6, b6} = 18'h001838; // покой — сине-серый, зона видна
             endcase
         end
-        else if (in_pbar)             {r6, g6, b6} = 18'h002A20;
-        else if (in_nbar)             {r6, g6, b6} = 18'h2A0808;
+        else if (in_pbar)             {r6, g6, b6} = 18'h003F3F;
+        else if (in_nbar)             {r6, g6, b6} = 18'h3F1408;
         else                          {r6, g6, b6} = 18'h000814;
     end
 
-    assign lcd_r = b6;   // BGR-панель: каналы переставлены
+    assign lcd_r = r6;   // панель RGB (проверено lcd_test + заводскими полосами)
     assign lcd_g = g6;
-    assign lcd_b = r6;
+    assign lcd_b = b6;
 
 endmodule
 
