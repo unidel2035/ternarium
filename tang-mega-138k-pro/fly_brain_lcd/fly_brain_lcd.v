@@ -314,6 +314,11 @@ module fly_brain_lcd (
                     if (r == ROWS) begin
                         r   <= 0;
                         acc_ro0 <= 0; acc_ro1 <= 0; acc_ro2 <= 0; acc_ro3 <= 0;
+                        // ── авто-стимул: инъекция в конец шага (как в golden:
+                        //    nx[SENS[step%4]] = 1 после порога) ──
+                        xa[stim_id(stim_idx[1:0])] <= 2'b01;
+                        xb[stim_id(stim_idx[1:0])] <= 2'b01;
+                        stim_idx <= stim_idx + 16'd1;
                         mst <= 4'd11;                           // → readout pass
                     end else begin
                         r   <= r + 1;
@@ -422,10 +427,10 @@ module fly_brain_lcd (
     wire [15:0] py = v_cnt - 16'd8;        // 0..479
     assign lcd_en = visible;
 
-    // ── лента: цвет состояния нейрона (3 px колонки) ──
+    // ── лента: цвет состояния нейрона (4 px колонки = 1 нейрон) ──
     wire [11:0] tape_idx  = px[11:2] - 8;              // (px-32)/4
     wire        in_tape   = (px >= 32) && (px < 32 + 1024) && (py >= 130) && (py < 250);
-    wire [11:0] tape_neur = tape_idx[11:2] * 4 + px[1:0];
+    wire [11:0] tape_neur = tape_idx;                  // колонка n = нейрон n (K=256)
 
     // ── класс-квадранты: активный класс подсвечен ──
     wire in_c0 = (py >= 380) && (py < 444) && (px >=  40) && (px < 100);
@@ -439,6 +444,10 @@ module fly_brain_lcd (
     // ── бары P/N ──
     wire in_pbar = (py >= 270) && (py < 300) && (px >= 32) && (px < 32 + pcount[11:0] * 3);
     wire in_nbar = (py >= 310) && (py < 340) && (px >= 32) && (px < 32 + ncount[11:0] * 3);
+
+    // ── маркер активного сенсора: белая колонка 4px на позиции стимула ──
+    wire [11:0] stim_pos = stim_id(stim_idx[1:0]);
+    wire        in_stim  = in_tape && (tape_idx == stim_pos);
 
     // ── белый sweep-столб: +1 px за кадр (~17 c на проход) — видимое движение ──
     reg [9:0] sweep_x = 0;
@@ -460,6 +469,7 @@ module fly_brain_lcd (
                 default: {r6, g6, b6} = cls_hit ? 18'h3F3F08 : 18'h080800;
             endcase
         end
+        else if (in_stim)             {r6, g6, b6} = 18'h3F3F3F;  // маркер сенсора
         else if (in_tape) begin
             case (xa[tape_neur])
                 2'b01: {r6, g6, b6} = 18'h003F00;  // +1 зелёный
